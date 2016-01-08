@@ -47,7 +47,7 @@ To convert the canvas to a BMP file, call:
     CanvasToBMP.toDataURL(canvas, function(uri) {
         // uri is a Data-URI that can be used as source for images etc.
         // uri = "data:image/bmp;base64, ...etc...";
-    });
+    }, errorHandler);
 
 A faster option to Data-URIs is using Blobs:
 
@@ -69,30 +69,27 @@ Convert to an ArrayBuffer that can be sent over the net:
         // buffer is ArrayBuffer with the BMP file
     });
 
-IMPORTANT: As with with ordinary canvas, cross-origin resource sharing 
+**NOTE:** As with with ordinary canvas, cross-origin resource sharing 
 (CORS) requirements must be fulfilled (see link below).
 
 
 Issues
 ------
 
-Feel free to report any issues you find.
-
-Go to [issue tracker](https://github.com/epistemex/canvas-to-bmp/issues).
+[Feel free to report if you come across any issues](https://github.com/epistemex/canvas-to-bmp/issues).
 
 **Please note (these are not related to canvas-to-bmp):**
 
 - Using large data-URIs can block the browser when it decodes them (use Blobs and ObjectURL instead) 
-- Firefox (incl. v39) ignores the alpha channel in BMP files when reading them
-- [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) is a security mechanism in the browser.
+- [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) requirements must be fulfilled as it is a security mechanism in the browser.
 
 
 License
 -------
 
-Released under [MIT license](http://choosealicense.com/licenses/mit/). You may use this class in both commercial and non-commercial projects provided that full header (minified and developer versions) is included.
+Released with [MIT license](http://choosealicense.com/licenses/mit/). You may use this class in both commercial and non-commercial projects provided that full header (minified and developer versions) is included.
 
 
-*&copy; Epistemex 2015*
+*&copy; Epistemex 2015-2016*
  
 ![Epistemex](http://i.imgur.com/wZSsyt8.png)

@@ -1,6 +1,6 @@
 /*!
-	canvas-to-bmp version 1.1.0 BETA
-	By Epistemex (c) 2015
+	canvas-to-bmp version 1.2.0 BETA
+	By Epistemex (c) 2015-2016
 	www.epistemex.com
 	MIT License (this header required)
 */
@@ -15,6 +15,11 @@
 var CanvasToBMP = {
 
 	/**
+	 * @private
+	 */
+	_dly: 9,													// delay for async operations
+
+	/**
 	 * Convert a canvas element to ArrayBuffer containing a BMP file
 	 * with support for 32-bit format (alpha). The call is asynchronous
 	 * so a callback must be provided.
@@ -23,73 +28,81 @@ var CanvasToBMP = {
 	 *
 	 * @param {HTMLCanvasElement} canvas - the canvas element to convert
 	 * @param {function} callback - called when conversion is done. Argument is ArrayBuffer
+	 * @param {function} [error] - called if an error occurred
 	 * @static
 	 */
-	toArrayBuffer: function(canvas, callback) {
+	toArrayBuffer: function(canvas, callback, error) {
 
-		var w              = canvas.width,
-			h              = canvas.height,
-			w4             = w << 2,
-			idata          = canvas.getContext("2d").getImageData(0, 0, w, h),
-			data32         = new Uint32Array(idata.data.buffer),
+		try {
+			var me			   = this,
+				w              = canvas.width,
+				h              = canvas.height,
+				w4             = w << 2,
+				idata          = canvas.getContext("2d").getImageData(0, 0, w, h),
+				data32         = new Uint32Array(idata.data.buffer),
 
-			stride         = ((32 * w + 31) / 32) << 2,
-			pixelArraySize = stride * h,
-			fileLength     = 122 + pixelArraySize,
+				stride         = ((32 * w + 31) / 32) << 2,
+				pixelArraySize = stride * h,
+				fileLength     = 122 + pixelArraySize,
 
-			file           = new ArrayBuffer(fileLength),
-			view           = new DataView(file),
-			blockSize      = 1 << 20,
-			block          = blockSize,
-			y = 0, x, v, a, pos = 0, p, s = 0;
+				file           = new ArrayBuffer(fileLength),
+				view           = new DataView(file),
+				blockSize      = 1 << 20,
+				block          = blockSize,
+				y = 0, x, v, a, pos = 0, p, s = 0;
 
-		// Header
-		set16(0x4d42);										// BM
-		set32(fileLength);									// total length
-		seek(4);											// skip unused fields
-		set32(0x7a);										// offset to pixels
+			// Header
+			set16(0x4d42);										// BM
+			set32(fileLength);									// total length
+			seek(4);											// skip unused fields
+			set32(0x7a);										// offset to pixels
 
-		// DIB header
-		set32(0x6c);										// header size (108)
-		set32(w);
-		set32(-h >>> 0);									// negative = top-to-bottom
-		set16(1);											// 1 plane
-		set16(32);											// 32-bits (RGBA)
-		set32(3);											// no compression (BI_BITFIELDS, 3)
-		set32(pixelArraySize);								// bitmap size incl. padding (stride x height)
-		set32(2835);										// pixels/meter h (~72 DPI x 39.3701 inch/m)
-		set32(2835);										// pixels/meter v
-		seek(8);											// skip color/important colors
-		set32(0xff0000);									// red channel mask
-		set32(0xff00);										// green channel mask
-		set32(0xff);										// blue channel mask
-		set32(0xff000000);									// alpha channel mask
-		set32(0x57696e20);									// " win" color space
+			// DIB header
+			set32(0x6c);										// header size (108)
+			set32(w);
+			set32(-h >>> 0);									// negative = top-to-bottom
+			set16(1);											// 1 plane
+			set16(32);											// 32-bits (RGBA)
+			set32(3);											// no compression (BI_BITFIELDS, 3)
+			set32(pixelArraySize);								// bitmap size incl. padding (stride x height)
+			set32(2835);										// pixels/meter h (~72 DPI x 39.3701 inch/m)
+			set32(2835);										// pixels/meter v
+			seek(8);											// skip color/important colors
+			set32(0xff0000);									// red channel mask
+			set32(0xff00);										// green channel mask
+			set32(0xff);										// blue channel mask
+			set32(0xff000000);									// alpha channel mask
+			set32(0x57696e20);									// " win" color space
 
-		(function convert() {
+			(function convert() {
 
-			// bitmap data, change order of ABGR to BGRA (msb-order)
-			while(y < h && block > 0) {
-				p = 0x7a + y * stride;						// offset + stride x height
-				x = 0;
+				// bitmap data, change order of ABGR to BGRA (msb-order)
+				while(y < h && block > 0) {
+					p = 0x7a + y * stride;						// offset + stride x height
+					x = 0;
 
-				while(x < w4) {
-					block--;
-					v = data32[s++];						// get ABGR
-					a = v >>> 24;							// alpha
-					view.setUint32(p + x, (v << 8) | a);  	// set BGRA (msb order)
-					x += 4;
+					while(x < w4) {
+						block--;
+						v = data32[s++];						// get ABGR
+						a = v >>> 24;							// alpha
+						view.setUint32(p + x, (v << 8) | a);  	// set BGRA (msb order)
+						x += 4;
+					}
+					y++
 				}
-				y++
-			}
 
-			if (s < data32.length) {
-				block = blockSize;
-				setTimeout(convert, CanvasToBMP._dly);
-			}
-			else
-				callback(file);
-		})();
+				if (s < data32.length) {
+					block = blockSize;
+					setTimeout(convert, me._dly);
+				}
+				else
+					callback(file);
+			})();
+
+		}
+		catch(err) {
+			if (error) error(err.toString())
+		}
 
 		// helper method to move current buffer position
 		function set16(data) {
@@ -114,12 +127,13 @@ var CanvasToBMP = {
 	 *
 	 * @param {HTMLCanvasElement} canvas - the canvas element to convert
 	 * @param {function} callback - called when conversion is done. Argument is a Blob
+	 * @param {function} [error] - called if an error occurred
 	 * @static
 	 */
-	toBlob: function(canvas, callback) {
+	toBlob: function(canvas, callback, error) {
 		this.toArrayBuffer(canvas, function(file) {
 			callback(new Blob([file], {type: "image/bmp"}));
-		});
+		}, error || null);
 	},
 
 	/**
@@ -137,13 +151,14 @@ var CanvasToBMP = {
 	 *
 	 * @param {HTMLCanvasElement} canvas - the canvas element to convert
 	 * @param {function} callback - called when conversion is done. Argument is a Blob
+	 * @param {function} [error] - called if an error occurred
 	 * @static
 	 */
-	toObjectURL: function(canvas, callback) {
+	toObjectURL: function(canvas, callback, error) {
 		this.toBlob(canvas, function(blob) {
 			var url = self.URL || self.webkitURL || self;
 			callback(url.createObjectURL(blob))
-		});
+		}, error || null);
 	},
 
 	/**
@@ -154,9 +169,12 @@ var CanvasToBMP = {
 	 *
 	 * @param {HTMLCanvasElement} canvas - the canvas element to convert
 	 * @param {function} callback - called when conversion is done. Argument is an data-URI (string)
+	 * @param {function} [error] - called if an error occurred
 	 * @static
 	 */
-	toDataURL: function(canvas, callback) {
+	toDataURL: function(canvas, callback, error) {
+
+		var me = this;
 
 		this.toArrayBuffer(canvas, function(file) {
 			var buffer = new Uint8Array(file),
@@ -173,7 +191,7 @@ var CanvasToBMP = {
 
 				if (i < l) {
 					block = blockSize;
-					setTimeout(prepBase64, CanvasToBMP._dly);
+					setTimeout(prepBase64, me._dly);
 				}
 				else {
 					// convert string to Base-64
@@ -185,12 +203,11 @@ var CanvasToBMP = {
 						base64 += btoa(bs.substr(i, block));
 						i += block;
 						(i < l)
-							? setTimeout(toBase64, CanvasToBMP._dly)
+							? setTimeout(toBase64, me._dly)
 							: callback("data:image/bmp;base64," + base64);
 					})();
 				}
 			})();
-		});
+		}, error || null);
 	}
 };
-CanvasToBMP._dly = 9;	// delay for async operations
