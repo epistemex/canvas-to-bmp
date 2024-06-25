@@ -1,7 +1,9 @@
 Change log for CanvasToBMP
 --------------------------
 
-1.2.0
+1.2.0 See git log
+
+1.2.0 BETA
 ADD: Optional generic error callback
 CHG: Minor internal tweaks
 
