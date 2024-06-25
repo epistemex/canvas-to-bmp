@@ -201,7 +201,7 @@ const CanvasToBMP = {
           block = 180000;		// must be divisible by 3
 
           (function toBase64() {
-            base64 += btoa(bs.substr(i, block));
+            base64 += btoa(bs.substr(i, block));  // todo substr is deprecated
             i += block;
             i < l ? setTimeout(toBase64, me._dly) : callback('data:image/bmp;base64,' + base64);
           })();
