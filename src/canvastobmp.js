@@ -1,6 +1,6 @@
 /*!
-	canvas-to-bmp version 1.2.0 BETA
-	By Epistemex (c) 2015-2016
+	canvas-to-bmp version 1.2.0
+	(c) Epistemex 2015-2016, 2024
 	www.epistemex.com
 	MIT License (this header required)
 */
@@ -12,17 +12,17 @@
  * @type {{toArrayBuffer: Function, toBlob: Function, toDataURL: Function}}
  * @namespace
  */
-var CanvasToBMP = {
+const CanvasToBMP = {
 
-	/**
-	 * @private
-	 */
-	_dly: 9,													// delay for async operations
+  /**
+   * @private
+   */
+  _dly: 9,													// delay for async operations
 
-	/**
-	 * Convert a canvas element to ArrayBuffer containing a BMP file
-	 * with support for 32-bit format (alpha). The call is asynchronous
-	 * so a callback must be provided.
+  /**
+   * Convert a canvas element to ArrayBuffer containing a BMP file
+   * with support for 32-bit format (alpha). The call is asynchronous
+   * so a callback must be provided.
 	 *
 	 * Note that CORS requirement must be fulfilled.
 	 *
