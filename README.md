@@ -1,15 +1,16 @@
 ﻿canvas-to-bmp
 =============
 
-Client side HTML5 Canvas to BMP file format converter with support for 
-alpha channel.
+Client side HTML5 Canvas to BMP file format converter with support for alpha channel.
 
-Virtually all browsers can read BMP files, but not all browsers supports 
-BMP with canvas' toDataURL().
+Virtually all browsers can read BMP files, but not all browsers supports BMP with canvas'
+toDataURL().
 
-The **canvas-to-bmp** plugin solves this when you need your canvas 
-graphics as BMP.
+The **canvas-to-bmp** plugin solves this when you need your canvas graphics as BMP.
 
+_Help keep the project alive by supporting the developer:_
+
+[![PayPalMe](https://github.com/epistemex/transformation-matrix-js/assets/70324091/04203267-58f0-402b-9589-e2dee6e7c510)](https://paypal.me/KenNil)
 
 Features
 --------
@@ -87,9 +88,10 @@ Issues
 License
 -------
 
-Released with [MIT license](http://choosealicense.com/licenses/mit/). You may use this class in both commercial and non-commercial projects provided that full header (minified and developer versions) is included.
+Released with [MIT license](http://choosealicense.com/licenses/mit/). You may use this class in both
+commercial and non-commercial projects provided that full header (minified and developer versions)
+is included.
 
+*&copy; Epistemex 2015-2016, 2024*
 
-*&copy; Epistemex 2015-2016*
- 
-![Epistemex](http://i.imgur.com/wZSsyt8.png)
+![Epistemex](https://i.imgur.com/wZSsyt8.png)
